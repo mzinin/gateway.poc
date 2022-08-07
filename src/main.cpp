@@ -1,41 +1,55 @@
-#include <chrono>
+#include <boost/program_options.hpp>
+
+#include <cstdlib>
 #include <iostream>
-#include <stdexcept>
-#include <thread>
 
-void foo(int i)
+namespace
 {
-    if (i == 5)
-        throw std::runtime_error("Bad number");
-    std::cout << "Number " << i << std::endl;
-}
+    std::string configPath;
 
-void worker(int id)
-{
-    for (int i = 0; i < 10; ++i)
+    bool parseArguments(int argc, char* argv[])
     {
+        namespace po = boost::program_options;
+
+        po::options_description desc("Options");
+        desc.add_options()
+            ("help,h", "print this message")
+            ("config,c", po::value<std::string>(&configPath)->required(), "path to config file");
+
+        po::variables_map vm;
+
         try
         {
-            std::cout << "Worker " << id << ": ";
-            foo(i);
+            po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+
+            if (vm.count("help"))
+            {
+                std::cout << "Usage:\n\t" << argv[0] << " [options]" << std::endl;
+                std::cout << desc;
+                return false;
+            }
+
+            po::notify(vm);
         }
-        catch (const std::exception&)
+        catch (const std::exception& e)
         {
-            std::cout << "exception\n";
+            std::cerr << e.what() << std::endl;
+            std::cerr << desc;
+            return false;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        return true;
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::cout << "Hello, gateway!" << std::endl;
+    if (!parseArguments(argc, argv))
+    {
+        return EXIT_FAILURE;
+    }
 
-    std::thread t1{worker, 1};
-    std::thread t2{worker, 2};
+    std::cout << "Path to config: " << configPath << std::endl;
 
-    t1.join();
-    t2.join();
-
-    return 0;
+    return EXIT_SUCCESS;
 }
