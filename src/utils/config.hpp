@@ -1,8 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <string_view>
 
+struct LogConfig final
+{
+    std::string severity = "error";
+};
 
 struct HttpServerConfig final
 {
@@ -10,10 +15,10 @@ struct HttpServerConfig final
     uint16_t threads;
 };
 
-class Config final
+struct Config final
 {
-public:
-    Config(std::string_view filePath);
-
+    LogConfig log;
     HttpServerConfig http;
 };
+
+void parseConfig(std::string_view filePath, Config& config);

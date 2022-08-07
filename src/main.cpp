@@ -1,4 +1,5 @@
 #include <utils/config.hpp>
+#include <utils/log.hpp>
 
 #include <boost/program_options.hpp>
 
@@ -51,16 +52,26 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    Config config;
     try
     {
-        const auto config = Config{configPath};
-        std::cout << config.http.port << std::endl;
+        parseConfig(configPath, config);
     }
     catch (const std::exception& e)
     {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+
+    initLog(config.log);
+    Log(info) << "Starting Gateway ...";
+
+    Log(trace) << "Trace";
+    Log(debug) << "Debug";
+    Log(info) << "Info";
+    Log(warning) << "Warning";
+    Log(error) << "Error";
+    Log(fatal) << "Fatal";
 
     return EXIT_SUCCESS;
 }

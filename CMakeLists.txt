@@ -9,6 +9,8 @@ INCLUDE (BuildFlags)
 
 SET (Boost_USE_STATIC_LIBS ON)
 FIND_PACKAGE (Boost COMPONENTS
+    log
+    log_setup
     program_options
     REQUIRED
 )
@@ -17,11 +19,13 @@ FIND_PACKAGE (Boost COMPONENTS
 
 SET (HEADERS
     "src/utils/config.hpp"
+    "src/utils/log.hpp"
 )
 
 SET (SOURCES
     "src/main.cpp"
     "src/utils/config.cpp"
+    "src/utils/log.cpp"
 )
 
 ADD_EXECUTABLE (${PROJECT_NAME}
@@ -33,6 +37,8 @@ TARGET_INCLUDE_DIRECTORIES (${PROJECT_NAME}
 )
 
 TARGET_LINK_LIBRARIES (${PROJECT_NAME}
+    ${Boost_LOG_LIBRARY}
+    ${Boost_LOG_SETUP_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     tomlplusplus
 )

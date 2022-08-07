@@ -3,18 +3,39 @@
 #include <tomlplusplus/toml.hpp>
 
 #include <limits>
-
+#include <set>
 
 namespace
 {
     constexpr std::string_view HTTP_CONFIG_TABLE = "http";
+    constexpr std::string_view LOG_CONFIG_TABLE = "log";
+
     constexpr std::string_view PORT_PARAMETER = "port";
+    constexpr std::string_view SEVERITY_PARAMETER = "severity";
     constexpr std::string_view THREADS_PARAMETER = "threads";
+
+    const std::set<std::string> SEVERITIES = {"trace", "debug", "info", "warning", "error", "fatal"};
 
     constexpr int64_t MIN_PORT = 1;
     constexpr int64_t MAX_PORT = 65535;
     constexpr int64_t MIN_THREADS = 1;
     constexpr int64_t MAX_THREADS = 256;
+
+    LogConfig parseLogConfig(const toml::node_view<const toml::node>& node)
+    {
+        const auto severity = node[SEVERITY_PARAMETER].as_string();
+        if (!severity)
+        {
+            return {};
+        }
+        const auto severityValue = severity->get();
+        if (SEVERITIES.count(severityValue) == 0)
+        {
+            throw std::invalid_argument("Log config has no proper severity parameter");
+        }
+
+        return {.severity = severityValue};
+    }
 
     HttpServerConfig parseHttpServerConfig(const toml::node_view<const toml::node>& node)
     {
@@ -49,14 +70,20 @@ namespace
     }
 }
 
-Config::Config(std::string_view filePath)
+void parseConfig(std::string_view filePath, Config& config)
 {
     const auto tomlTable = toml::parse_file(filePath);
+
+    const auto& logConfigNode = tomlTable[LOG_CONFIG_TABLE];
+    if (logConfigNode)
+    {
+        config.log = parseLogConfig(logConfigNode);
+    }
 
     const auto& httpServerConfigNode = tomlTable[HTTP_CONFIG_TABLE];
     if (!httpServerConfigNode)
     {
         throw std::invalid_argument("Config file has no http server config table");
     }
-    http = parseHttpServerConfig(httpServerConfigNode);
+    config.http = parseHttpServerConfig(httpServerConfigNode);
 }

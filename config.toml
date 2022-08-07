@@ -1,0 +1,6 @@
+[log]
+severity = "debug"
+
+[http]
+port = 80
+threads = 4
