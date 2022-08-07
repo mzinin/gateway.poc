@@ -15,8 +15,13 @@ FIND_PACKAGE (Boost COMPONENTS
 
 
 
+SET (HEADERS
+    "src/utils/config.hpp"
+)
+
 SET (SOURCES
     "src/main.cpp"
+    "src/utils/config.cpp"
 )
 
 ADD_EXECUTABLE (${PROJECT_NAME}
@@ -24,9 +29,13 @@ ADD_EXECUTABLE (${PROJECT_NAME}
 )
 
 TARGET_INCLUDE_DIRECTORIES (${PROJECT_NAME}
-    PUBLIC "include/"
+    PUBLIC "src/"
 )
 
 TARGET_LINK_LIBRARIES (${PROJECT_NAME}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
+    tomlplusplus
 )
+
+
+ADD_SUBDIRECTORY (3rdparty)

@@ -1,3 +1,5 @@
+#include <utils/config.hpp>
+
 #include <boost/program_options.hpp>
 
 #include <cstdlib>
@@ -49,7 +51,16 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    std::cout << "Path to config: " << configPath << std::endl;
+    try
+    {
+        const auto config = Config{configPath};
+        std::cout << config.http.port << std::endl;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
