@@ -21,4 +21,4 @@ struct Config final
     HttpServerConfig http;
 };
 
-void parseConfig(std::string_view filePath, Config& config);
+bool parseConfig(std::string_view filePath, Config& config);

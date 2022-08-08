@@ -2,8 +2,10 @@
 
 #include <tomlplusplus/toml.hpp>
 
+#include <iostream>
 #include <limits>
 #include <set>
+#include <stdexcept>
 
 namespace
 {
@@ -68,22 +70,36 @@ namespace
             .threads = static_cast<decltype(HttpServerConfig::threads)>(threadsValue)
         };
     }
+
+    void fillConfig(Config& config, const toml::table& table)
+    {
+        const auto& logConfigNode = table[LOG_CONFIG_TABLE];
+        if (logConfigNode)
+        {
+            config.log = parseLogConfig(logConfigNode);
+        }
+
+        const auto& httpServerConfigNode = table[HTTP_CONFIG_TABLE];
+        if (!httpServerConfigNode)
+        {
+            throw std::invalid_argument("Config file has no http server config table");
+        }
+        config.http = parseHttpServerConfig(httpServerConfigNode);
+    }
 }
 
-void parseConfig(std::string_view filePath, Config& config)
+bool parseConfig(std::string_view filePath, Config& config)
 {
-    const auto tomlTable = toml::parse_file(filePath);
-
-    const auto& logConfigNode = tomlTable[LOG_CONFIG_TABLE];
-    if (logConfigNode)
+    try
     {
-        config.log = parseLogConfig(logConfigNode);
+        const auto tomlTable = toml::parse_file(filePath);
+        fillConfig(config, tomlTable);
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return false;
     }
 
-    const auto& httpServerConfigNode = tomlTable[HTTP_CONFIG_TABLE];
-    if (!httpServerConfigNode)
-    {
-        throw std::invalid_argument("Config file has no http server config table");
-    }
-    config.http = parseHttpServerConfig(httpServerConfigNode);
+    return true;
 }

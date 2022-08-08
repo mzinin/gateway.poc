@@ -47,31 +47,14 @@ namespace
 
 int main(int argc, char* argv[])
 {
-    if (!parseArguments(argc, argv))
-    {
-        return EXIT_FAILURE;
-    }
-
     Config config;
-    try
+    if (!parseArguments(argc, argv) || !parseConfig(configPath, config))
     {
-        parseConfig(configPath, config);
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
 
     initLog(config.log);
-    Log(info) << "Starting Gateway ...";
-
-    Log(trace) << "Trace";
-    Log(debug) << "Debug";
-    Log(info) << "Info";
-    Log(warning) << "Warning";
-    Log(error) << "Error";
-    Log(fatal) << "Fatal";
+    Log(info) << "Starting gateway";
 
     return EXIT_SUCCESS;
 }
