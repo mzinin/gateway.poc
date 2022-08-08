@@ -18,12 +18,14 @@ FIND_PACKAGE (Boost COMPONENTS
 
 
 SET (HEADERS
+    "src/http/server.hpp"
     "src/utils/config.hpp"
     "src/utils/log.hpp"
 )
 
 SET (SOURCES
     "src/main.cpp"
+    "src/http/server.cpp"
     "src/utils/config.cpp"
     "src/utils/log.cpp"
 )

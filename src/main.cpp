@@ -1,8 +1,10 @@
+#include <http/server.hpp>
 #include <utils/config.hpp>
 #include <utils/log.hpp>
 
 #include <boost/program_options.hpp>
 
+#include <csignal>
 #include <cstdlib>
 #include <iostream>
 
@@ -43,6 +45,23 @@ namespace
 
         return true;
     }
+
+    void waitSignal()
+    {
+        sigset_t signalSet;
+        sigemptyset(&signalSet);
+
+        sigaddset(&signalSet, SIGINT);
+        sigaddset(&signalSet, SIGTERM);
+        sigaddset(&signalSet, SIGQUIT);
+
+        sigprocmask(SIG_BLOCK, &signalSet, nullptr);
+
+        int signal = 0;
+        sigwait(&signalSet, &signal);
+
+        Log(info) << "Got signal " << signal;
+    }
 }
 
 int main(int argc, char* argv[])
@@ -55,6 +74,21 @@ int main(int argc, char* argv[])
 
     initLog(config.log);
     Log(info) << "Starting gateway";
+
+    try
+    {
+        HttpServer server{config.http};
+        server.start();
+
+        waitSignal();
+
+        server.stop();
+    }
+    catch (const std::exception& e)
+    {
+        Log(error) << e.what();
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
