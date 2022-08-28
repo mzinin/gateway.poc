@@ -1,5 +1,8 @@
 #include <http/server.hpp>
+#include <http/session.hpp>
 #include <utils/log.hpp>
+
+#include <memory>
 
 
 HttpServer::HttpServer(const HttpServerConfig& config)
@@ -76,14 +79,11 @@ void HttpServer::onAccept(boost::system::error_code ec, boost::asio::ip::tcp::so
 {
     if(ec)
     {
-        Log(error) << ec.message();
+        Log(error) << "Failed to accept connection: " << ec.message();
         return;
     }
 
-    const auto endpoint = socket.remote_endpoint();
-    Log(info) << "Incoming connection from " << endpoint.address().to_string() << ":" << endpoint.port();
-
-    // TODO handle connection
+    std::make_shared<HttpSession>(config_.requestTimeout, std::move(socket))->run();
 
     if (!stopping_)
     {

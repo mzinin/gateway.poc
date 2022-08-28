@@ -14,6 +14,7 @@ namespace
 
     constexpr std::string_view PORT_PARAMETER = "port";
     constexpr std::string_view SEVERITY_PARAMETER = "severity";
+    constexpr std::string_view REQUEST_TIMEOUT_PARAMETER = "request_timeout";
     constexpr std::string_view THREADS_PARAMETER = "threads";
 
     const std::set<std::string> SEVERITIES = {"trace", "debug", "info", "warning", "error", "fatal"};
@@ -22,6 +23,8 @@ namespace
     constexpr int64_t MAX_PORT = 65535;
     constexpr int64_t MIN_THREADS = 1;
     constexpr int64_t MAX_THREADS = 256;
+    constexpr int64_t MIN_TIMEOUT = 1;
+    constexpr int64_t MAX_TIMEOUT = 60;
 
     LogConfig parseLogConfig(const toml::node_view<const toml::node>& node)
     {
@@ -41,6 +44,8 @@ namespace
 
     HttpServerConfig parseHttpServerConfig(const toml::node_view<const toml::node>& node)
     {
+        HttpServerConfig result;
+
         // parse and check port value
         const auto port = node[PORT_PARAMETER].as_integer();
         if (!port)
@@ -52,6 +57,7 @@ namespace
         {
             throw std::invalid_argument("Http server config has wrong port value: " + std::to_string(portValue));
         }
+        result.port = static_cast<decltype(HttpServerConfig::port)>(portValue);
 
         // parse and check threads value
         const auto threads = node[THREADS_PARAMETER].as_integer();
@@ -64,11 +70,21 @@ namespace
         {
             throw std::invalid_argument("Http server config has wrong threads value: " + std::to_string(threadsValue));
         }
+        result.threads = static_cast<decltype(HttpServerConfig::threads)>(threadsValue);
 
-        return HttpServerConfig{
-            .port = static_cast<decltype(HttpServerConfig::port)>(portValue),
-            .threads = static_cast<decltype(HttpServerConfig::threads)>(threadsValue)
-        };
+        // parse and check request timeout
+        const auto timeout = node[REQUEST_TIMEOUT_PARAMETER].as_integer();
+        if (timeout)
+        {
+            const auto timeoutValue = timeout->get();
+            if (timeoutValue < MIN_TIMEOUT || MAX_TIMEOUT < timeoutValue)
+            {
+                throw std::invalid_argument("Http server config has wrong request timeout value: " + std::to_string(timeoutValue));
+            }
+            result.requestTimeout = static_cast<decltype(HttpServerConfig::requestTimeout)>(timeoutValue);
+        }
+
+        return result;
     }
 
     void fillConfig(Config& config, const toml::table& table)

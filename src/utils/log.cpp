@@ -30,7 +30,6 @@ namespace
     }
 }
 
-
 void initLog(const LogConfig& config)
 {
     const auto boostSeverity = stringToBoostSeverity(config.severity);

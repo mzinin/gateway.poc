@@ -13,6 +13,7 @@ struct HttpServerConfig final
 {
     uint16_t port;
     uint16_t threads;
+    uint16_t requestTimeout = 10; // seconds
 };
 
 struct Config final

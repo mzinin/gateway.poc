@@ -16,9 +16,9 @@ FIND_PACKAGE (Boost COMPONENTS
 )
 
 
-
 SET (HEADERS
     "src/http/server.hpp"
+    "src/http/session.hpp"
     "src/utils/config.hpp"
     "src/utils/log.hpp"
 )
@@ -26,6 +26,7 @@ SET (HEADERS
 SET (SOURCES
     "src/main.cpp"
     "src/http/server.cpp"
+    "src/http/session.cpp"
     "src/utils/config.cpp"
     "src/utils/log.cpp"
 )
