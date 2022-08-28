@@ -14,9 +14,11 @@ FIND_PACKAGE (Boost COMPONENTS
     program_options
     REQUIRED
 )
+ADD_COMPILE_DEFINITIONS ("BOOST_BEAST_USE_STD_STRING_VIEW")
 
 
 SET (HEADERS
+    "src/handler/interface.hpp"
     "src/http/server.hpp"
     "src/http/session.hpp"
     "src/utils/config.hpp"

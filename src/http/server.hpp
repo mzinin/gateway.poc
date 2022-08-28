@@ -1,5 +1,6 @@
 #pragma once
 
+#include <handler/interface.hpp>
 #include <utils/config.hpp>
 
 #include <boost/asio.hpp>
@@ -12,7 +13,7 @@
 class HttpServer final
 {
 public:
-    HttpServer(const HttpServerConfig& config);
+    HttpServer(const HttpServerConfig& config, IHandler& handler);
 
     void start();
     void stop();
@@ -30,6 +31,7 @@ private:
     HttpServerConfig config_;
     boost::asio::io_context ioContext_;
     boost::asio::ip::tcp::acceptor acceptor_;
+    IHandler& handler_;
 
     std::atomic_bool stopping_;
 

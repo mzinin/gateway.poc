@@ -5,10 +5,11 @@
 #include <memory>
 
 
-HttpServer::HttpServer(const HttpServerConfig& config)
+HttpServer::HttpServer(const HttpServerConfig& config, IHandler& handler)
     : config_{config}
     , ioContext_{config_.threads}
     , acceptor_{boost::asio::make_strand(ioContext_)}
+    , handler_(handler)
 {
 }
 
@@ -83,7 +84,7 @@ void HttpServer::onAccept(boost::system::error_code ec, boost::asio::ip::tcp::so
         return;
     }
 
-    std::make_shared<HttpSession>(config_.requestTimeout, std::move(socket))->run();
+    std::make_shared<HttpSession>(std::move(socket), config_.requestTimeout, handler_)->run();
 
     if (!stopping_)
     {

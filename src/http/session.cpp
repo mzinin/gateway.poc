@@ -2,31 +2,19 @@
 #include <utils/log.hpp>
 
 #include <chrono>
+#include <string_view>
 
 
 namespace
 {
-    using Request = boost::beast::http::request<boost::beast::http::string_body>;
-    using Response = boost::beast::http::response<boost::beast::http::string_body>;
-
-    Response handleRequest(Request&& request)
-    {
-        // TODO handle requests
-
-        Response response{boost::beast::http::status::bad_request, request.version()};
-
-        response.set(boost::beast::http::field::content_type, "text/json");
-        response.keep_alive(request.keep_alive());
-        response.body() = R"({"error": "I cannot handle requests yet"})";
-        response.prepare_payload();
-
-        return response;
-    }
+    constexpr std::string_view INSTRUMENT_PATH = "/instrument";
+    constexpr std::string_view JSON_CONTENT_TYPE = "text/json";
 }
 
-HttpSession::HttpSession(uint16_t timeout, boost::asio::ip::tcp::socket&& socket)
-    : timeout_(timeout)
-    , stream_(std::move(socket))
+HttpSession::HttpSession(boost::asio::ip::tcp::socket&& socket, uint16_t timeout, IHandler& handler)
+    : stream_(std::move(socket))
+    , timeout_(timeout)
+    , handler_(handler)
 {
     const auto endpoint = stream_.socket().remote_endpoint();
     Log(info) << "Incoming connection from " << endpoint.address().to_string() << ":" << endpoint.port();
@@ -74,10 +62,56 @@ void HttpSession::onRead(boost::beast::error_code ec, size_t /*bytesRead*/)
         return;
     }
 
-    response_ = handleRequest(std::move(request_));
+    handleRequest();
     boost::beast::http::async_write(stream_,
                                     response_,
                                     boost::beast::bind_front_handler(&HttpSession::onWrite, shared_from_this()));
+}
+
+void HttpSession::handleRequest()
+{
+    response_ = {};
+    response_.version(request_.version());
+    response_.keep_alive(request_.keep_alive());
+    response_.set(boost::beast::http::field::content_type, JSON_CONTENT_TYPE);
+
+    if (request_.method() != boost::beast::http::verb::post)
+    {
+        response_.result(boost::beast::http::status::method_not_allowed);
+        response_.body() = R"({"error": "wrong HTTP method"})";
+    }
+    else if (request_.target() != INSTRUMENT_PATH)
+    {
+        response_.result(boost::beast::http::status::bad_request);
+        response_.body() = R"({"error": "wrong path"})";
+    }
+    else
+    {
+        auto result = handler_(request_.body());
+        switch (result.error)
+        {
+            case IHandler::Error::OK:
+                response_.result(boost::beast::http::status::accepted);
+                break;
+
+            case IHandler::Error::BAD_DATA:
+                response_.result(boost::beast::http::status::bad_request);
+                response_.body() = R"({"error": ")" + result.message + R"("})";
+                break;
+
+            case IHandler::Error::STORAGE_UNAVAILABLE:
+                response_.result(boost::beast::http::status::service_unavailable);
+                response_.body() = R"({"error": ")" + result.message + R"("})";
+                break;
+
+            case IHandler::Error::GENERIC:
+                response_.result(boost::beast::http::status::internal_server_error);
+                response_.body() = R"({"error": ")" + result.message + R"("})";
+                break;
+        }
+    }
+
+    response_.prepare_payload();
 }
 
 void HttpSession::onWrite(boost::beast::error_code ec, size_t /*bytesWritten*/)

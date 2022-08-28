@@ -1,3 +1,4 @@
+#include <handler/interface.hpp>
 #include <http/server.hpp>
 #include <utils/config.hpp>
 #include <utils/log.hpp>
@@ -64,6 +65,15 @@ namespace
     }
 }
 
+class DummyHandler final : public IHandler
+{
+public:
+    Result operator()(const std::string&) override
+    {
+        return {Error::OK, "OK"};
+    }
+};
+
 int main(int argc, char* argv[])
 {
     Config config;
@@ -75,9 +85,11 @@ int main(int argc, char* argv[])
     initLog(config.log);
     Log(info) << "Starting gateway";
 
+    DummyHandler handler{};
+
     try
     {
-        HttpServer server{config.http};
+        HttpServer server{config.http, handler};
         server.start();
 
         waitSignal();
