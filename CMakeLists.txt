@@ -45,6 +45,7 @@ TARGET_LINK_LIBRARIES (${PROJECT_NAME}
     ${Boost_LOG_LIBRARY}
     ${Boost_LOG_SETUP_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
+    nlohmann_json
     tomlplusplus
 )
 
