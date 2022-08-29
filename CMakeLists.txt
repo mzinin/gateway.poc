@@ -22,6 +22,8 @@ FIND_PACKAGE (CppDB REQUIRED)
 
 SET (HEADERS
     "src/handler/interface.hpp"
+    "src/handler/json_checker.hpp"
+    "src/handler/universal_handler.hpp"
     "src/http/server.hpp"
     "src/http/session.hpp"
     "src/utils/config.hpp"
@@ -30,6 +32,7 @@ SET (HEADERS
 
 SET (SOURCES
     "src/main.cpp"
+    "src/handler/json_checker.cpp"
     "src/http/server.cpp"
     "src/http/session.cpp"
     "src/utils/config.cpp"
