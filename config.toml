@@ -4,3 +4,4 @@ severity = "debug"
 [http]
 port = 8080
 threads = 4
+request_timeout = 3
