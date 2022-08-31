@@ -11,11 +11,16 @@ namespace
 {
     constexpr std::string_view HTTP_CONFIG_TABLE = "http";
     constexpr std::string_view LOG_CONFIG_TABLE = "log";
+    constexpr std::string_view POSTGRES_CONFIG_TABLE = "postgres";
 
+    constexpr std::string_view DATABASE_PARAMETER = "database";
+    constexpr std::string_view HOST_PARAMETER = "host";
+    constexpr std::string_view PASSWORD_PARAMETER = "password";
     constexpr std::string_view PORT_PARAMETER = "port";
     constexpr std::string_view SEVERITY_PARAMETER = "severity";
     constexpr std::string_view REQUEST_TIMEOUT_PARAMETER = "request_timeout";
     constexpr std::string_view THREADS_PARAMETER = "threads";
+    constexpr std::string_view USER_PARAMETER = "user";
 
     const std::set<std::string> SEVERITIES = {"trace", "debug", "info", "warning", "error", "fatal"};
 
@@ -87,6 +92,57 @@ namespace
         return result;
     }
 
+    PostgresConfig parsePostgresConfig(const toml::node_view<const toml::node>& node)
+    {
+        PostgresConfig result;
+
+        // parse and check host value
+        const auto host = node[HOST_PARAMETER].as_string();
+        if (!host || host->get().empty())
+        {
+            throw std::invalid_argument("Postgres config has no proper host parameter");
+        }
+        result.host = host->get();
+
+        // parse and check port value
+        const auto port = node[PORT_PARAMETER].as_integer();
+        if (port)
+        {
+            const auto portValue = port->get();
+            if (portValue < MIN_PORT || MAX_PORT < portValue)
+            {
+                throw std::invalid_argument("Postgres config has wrong port value: " + std::to_string(portValue));
+            }
+            result.port = static_cast<decltype(PostgresConfig::port)>(portValue);
+        }
+
+        // parse and check database value
+        const auto database = node[DATABASE_PARAMETER].as_string();
+        if (!database || database->get().empty())
+        {
+            throw std::invalid_argument("Postgres config has no proper database parameter");
+        }
+        result.database = database->get();
+
+        // parse and check user value
+        const auto user = node[USER_PARAMETER].as_string();
+        if (!user || user->get().empty())
+        {
+            throw std::invalid_argument("Postgres config has no proper user parameter");
+        }
+        result.user = user->get();
+
+        // parse and check password value
+        const auto password = node[PASSWORD_PARAMETER].as_string();
+        if (!password)
+        {
+            throw std::invalid_argument("Postgres config has no proper password parameter");
+        }
+        result.password = password->get();
+
+        return result;
+    }
+
     void fillConfig(Config& config, const toml::table& table)
     {
         const auto& logConfigNode = table[LOG_CONFIG_TABLE];
@@ -101,6 +157,18 @@ namespace
             throw std::invalid_argument("Config file has no http server config table");
         }
         config.http = parseHttpServerConfig(httpServerConfigNode);
+
+        const auto& postgresConfigNode = table[POSTGRES_CONFIG_TABLE];
+        if (postgresConfigNode)
+        {
+            config.postgres = parsePostgresConfig(postgresConfigNode);
+        }
+
+        // TODO: either postgres or redis config must be present
+        if (!config.postgres)
+        {
+            throw std::invalid_argument("Config file has no storage config table");
+        }
     }
 }
 
