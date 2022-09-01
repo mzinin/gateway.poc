@@ -9,7 +9,7 @@ public:
     struct Result
     {
         bool ok;
-        std::string error;
+        std::string message;
     };
 
     static Result check(const std::string& data);

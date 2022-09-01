@@ -1,5 +1,6 @@
 #include <handler/interface.hpp>
 #include <handler/json_checker.hpp>
+#include <handler/postgres_writer.hpp>
 #include <handler/universal_handler.hpp>
 #include <http/server.hpp>
 #include <utils/config.hpp>
@@ -10,6 +11,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 namespace
 {
@@ -78,11 +80,15 @@ int main(int argc, char* argv[])
     initLog(config.log);
     Log(info) << "Starting gateway";
 
-    UniversalHandler<JsonChecker> handler{};
-
     try
     {
-        HttpServer server{config.http, handler};
+        std::unique_ptr<IHandler> handler;
+        if (config.postgres)
+        {
+            handler = std::make_unique<UniversalHandler<JsonChecker, PostgresWriter>>(*config.postgres);
+        }
+
+        HttpServer server{config.http, *handler};
         server.start();
 
         waitSignal();
