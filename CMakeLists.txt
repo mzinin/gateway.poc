@@ -7,7 +7,7 @@ SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 INCLUDE (BuildFlags)
 
 
-SET (Boost_USE_STATIC_LIBS ON)
+# SET (Boost_USE_STATIC_LIBS ON)
 FIND_PACKAGE (Boost COMPONENTS
     log
     log_setup
@@ -16,13 +16,14 @@ FIND_PACKAGE (Boost COMPONENTS
 )
 ADD_COMPILE_DEFINITIONS ("BOOST_BEAST_USE_STD_STRING_VIEW")
 
-SET (PQXX_USE_STATIC_LIBS ON)
+#SET (PQXX_USE_STATIC_LIBS ON)
 FIND_PACKAGE (PQXX REQUIRED)
 
 
 SET (HEADERS
     "src/handler/interface.hpp"
     "src/handler/json_checker.hpp"
+    "src/handler/postgres_writer.hpp"
     "src/handler/universal_handler.hpp"
     "src/http/server.hpp"
     "src/http/session.hpp"
@@ -33,6 +34,7 @@ SET (HEADERS
 SET (SOURCES
     "src/main.cpp"
     "src/handler/json_checker.cpp"
+    "src/handler/postgres_writer.cpp"
     "src/http/server.cpp"
     "src/http/session.cpp"
     "src/utils/config.cpp"
@@ -52,7 +54,7 @@ TARGET_LINK_LIBRARIES (${PROJECT_NAME}
     ${Boost_LOG_LIBRARY}
     ${Boost_LOG_SETUP_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
-    ${PQXX_LIBRARIES}
+    ${PQXX_LIBRARY}
     nlohmann_json
     tomlplusplus
 )

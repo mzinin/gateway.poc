@@ -21,6 +21,6 @@ IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clan
     SET (CMAKE_CXX_FLAGS_RELEASE "-O3 -funroll-loops")
     SET (CMAKE_CXX_FLAGS_DEBUG   "-O0 -ggdb -g3")
 
-    ADD_LINK_OPTIONS ("-static-libgcc")
-    ADD_LINK_OPTIONS ("-static")
+    # ADD_LINK_OPTIONS ("-static-libgcc")
+    # ADD_LINK_OPTIONS ("-static")
 ENDIF ()
