@@ -1,7 +1,7 @@
 #include <handler/postgres_writer.hpp>
 
-#include <pqxx/pqxx>
-
+#include <algorithm>
+#include <mutex>
 #include <sstream>
 
 namespace
@@ -27,7 +27,7 @@ PostgresWriter::Result PostgresWriter::write(const std::string& data)
 {
     try
     {
-        auto connection = pqxx::connection{connectionString_};
+        auto& connection = findConnection();
         auto work = pqxx::work{connection};
 
         work.exec_params("INSERT INTO messages (data) VALUES ($1)",
@@ -42,5 +42,30 @@ PostgresWriter::Result PostgresWriter::write(const std::string& data)
     catch (const std::exception& e)
     {
         return {Error::GENERIC, e.what()};
+    }
+}
+
+pqxx::connection& PostgresWriter::findConnection()
+{
+    // try to find existing connection
+    {
+        std::shared_lock lock(mutex_);
+        auto it = std::find_if(connections_.begin(),
+                               connections_.end(),
+                               [threadId = std::this_thread::get_id()](const auto& ec){ return ec.threadId == threadId; });
+        if (it != connections_.end())
+        {
+            return *it->connection;
+        }
+    }
+
+    // create a new conenction
+    {
+        std::unique_lock lock(mutex_);
+        connections_.push_back({
+            .threadId = std::this_thread::get_id(),
+            .connection = std::make_unique<pqxx::connection>(connectionString_)
+        });
+        return *connections_.back().connection;
     }
 }
