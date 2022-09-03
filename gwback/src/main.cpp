@@ -1,14 +1,9 @@
-#include <common/utils/log.hpp>
-#include <common/utils/wait_signal.hpp>
-#include <handler/interface.hpp>
-#include <handler/json_checker.hpp>
-#include <handler/postgres_writer.hpp>
-#include <handler/universal_handler.hpp>
-#include <http/server.hpp>
 #include <utils/config.hpp>
+#include <utils/log.hpp>
 
 #include <boost/program_options.hpp>
 
+#include <csignal>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -50,6 +45,23 @@ namespace
 
         return true;
     }
+
+    void waitSignal()
+    {
+        sigset_t signalSet;
+        sigemptyset(&signalSet);
+
+        sigaddset(&signalSet, SIGINT);
+        sigaddset(&signalSet, SIGTERM);
+        sigaddset(&signalSet, SIGQUIT);
+
+        sigprocmask(SIG_BLOCK, &signalSet, nullptr);
+
+        int signal = 0;
+        sigwait(&signalSet, &signal);
+
+        Log(info) << "Got signal " << signal;
+    }
 }
 
 int main(int argc, char* argv[])
@@ -60,8 +72,8 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    common::initLog(config.log);
-    Log(info) << "Starting gateway front";
+    initLog(config.log);
+    Log(info) << "Starting gateway back";
 
     try
     {
@@ -74,7 +86,7 @@ int main(int argc, char* argv[])
         HttpServer server{config.http, *handler};
         server.start();
 
-        common::waitSignal();
+        waitSignal();
 
         server.stop();
     }

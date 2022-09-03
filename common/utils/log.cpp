@@ -1,4 +1,4 @@
-#include <utils/log.hpp>
+#include <common/utils/log.hpp>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/log/core.hpp>
@@ -30,7 +30,7 @@ namespace
     }
 }
 
-void initLog(const LogConfig& config)
+void common::initLog(const LogConfig& config)
 {
     const auto boostSeverity = stringToBoostSeverity(config.severity);
     if (!boostSeverity)

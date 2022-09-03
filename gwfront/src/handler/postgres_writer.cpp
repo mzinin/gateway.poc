@@ -6,7 +6,7 @@
 
 namespace
 {
-    std::string configToConnectionString(const PostgresConfig& config)
+    std::string configToConnectionString(const common::PostgresConfig& config)
     {
         std::ostringstream buffer;
         buffer << "host=" << config.host << " "
@@ -18,7 +18,7 @@ namespace
     }
 }
 
-PostgresWriter::PostgresWriter(const PostgresConfig& config)
+PostgresWriter::PostgresWriter(const common::PostgresConfig& config)
     : connectionString_(configToConnectionString(config))
 {
 }

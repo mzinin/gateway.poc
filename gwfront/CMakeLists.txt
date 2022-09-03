@@ -9,7 +9,6 @@ SET (HEADERS
     "src/http/server.hpp"
     "src/http/session.hpp"
     "src/utils/config.hpp"
-    "src/utils/log.hpp"
 )
 
 SET (SOURCES
@@ -19,7 +18,6 @@ SET (SOURCES
     "src/http/server.cpp"
     "src/http/session.cpp"
     "src/utils/config.cpp"
-    "src/utils/log.cpp"
 )
 
 ADD_EXECUTABLE (${TARGET_NAME}
@@ -32,10 +30,9 @@ TARGET_INCLUDE_DIRECTORIES (${TARGET_NAME}
 )
 
 TARGET_LINK_LIBRARIES (${TARGET_NAME}
-    ${Boost_LOG_LIBRARY}
-    ${Boost_LOG_SETUP_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${PQXX_LIBRARY}
+    common
     nlohmann_json
     tomlplusplus
 )

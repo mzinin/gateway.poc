@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utils/config.hpp>
+#include <common/utils/config.hpp>
 
 #include <pqxx/pqxx>
 
@@ -14,7 +14,7 @@
 class PostgresWriter final
 {
 public:
-    using ConfigType = PostgresConfig;
+    using ConfigType = common::PostgresConfig;
 
     enum class Error
     {
@@ -30,7 +30,7 @@ public:
     };
 
 public:
-    PostgresWriter(const PostgresConfig& config);
+    PostgresWriter(const common::PostgresConfig& config);
 
     Result write(const std::string& data);
 
