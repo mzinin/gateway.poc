@@ -2,24 +2,10 @@
 
 #include <algorithm>
 #include <mutex>
-#include <sstream>
 
-namespace
-{
-    std::string configToConnectionString(const common::PostgresConfig& config)
-    {
-        std::ostringstream buffer;
-        buffer << "host=" << config.host << " "
-               << "port=" << config.port << " "
-               << "dbname=" << config.database << " "
-               << "user=" << config.user << " "
-               << "password=" << config.password;
-        return buffer.str();
-    }
-}
 
 PostgresWriter::PostgresWriter(const common::PostgresConfig& config)
-    : connectionString_(configToConnectionString(config))
+    : connectionString_(config.connectionString())
 {
 }
 

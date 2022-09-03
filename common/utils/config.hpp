@@ -20,6 +20,8 @@ namespace common
         std::string database;
         std::string user;
         std::string password;
+
+        std::string connectionString() const;
     };
 
     LogConfig parseLogConfig(const toml::node_view<const toml::node>& node);

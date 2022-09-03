@@ -1,5 +1,6 @@
 #include <common/utils/log.hpp>
 #include <common/utils/wait_signal.hpp>
+#include <producer/postgres_producer.hpp>
 #include <utils/config.hpp>
 
 #include <boost/program_options.hpp>
@@ -61,6 +62,14 @@ int main(int argc, char* argv[])
 
     try
     {
+        auto producer = PostgresProducer{*config.postgres};
+        auto msgs = producer.getNext(10);
+        Log(info) << "number of messages: " << msgs.size();
+        for (auto& msg : msgs)
+        {
+            Log(info) << "id: " << msg.id << ", data: " << std::string_view{reinterpret_cast<char*>(msg.data.data()), msg.data.size()};
+        }
+
         common::waitSignal();
     }
     catch (const std::exception& e)

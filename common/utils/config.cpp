@@ -2,6 +2,7 @@
 
 #include <set>
 #include <stdexcept>
+#include <sstream>
 #include <string_view>
 
 
@@ -18,6 +19,17 @@ namespace
 
     constexpr int64_t MIN_PORT = 1;
     constexpr int64_t MAX_PORT = 65535;
+}
+
+std::string common::PostgresConfig::connectionString() const
+{
+    std::ostringstream buffer;
+    buffer << "host=" << host << " "
+            << "port=" << port << " "
+            << "dbname=" << database << " "
+            << "user=" << user << " "
+            << "password=" << password;
+    return buffer.str();
 }
 
 common::LogConfig common::parseLogConfig(const toml::node_view<const toml::node>& node)
