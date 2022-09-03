@@ -1,5 +1,6 @@
+#include <common/utils/log.hpp>
+#include <common/utils/wait_signal.hpp>
 #include <utils/config.hpp>
-#include <utils/log.hpp>
 
 #include <boost/program_options.hpp>
 
@@ -45,23 +46,6 @@ namespace
 
         return true;
     }
-
-    void waitSignal()
-    {
-        sigset_t signalSet;
-        sigemptyset(&signalSet);
-
-        sigaddset(&signalSet, SIGINT);
-        sigaddset(&signalSet, SIGTERM);
-        sigaddset(&signalSet, SIGQUIT);
-
-        sigprocmask(SIG_BLOCK, &signalSet, nullptr);
-
-        int signal = 0;
-        sigwait(&signalSet, &signal);
-
-        Log(info) << "Got signal " << signal;
-    }
 }
 
 int main(int argc, char* argv[])
@@ -72,23 +56,12 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    initLog(config.log);
+    common::initLog(config.log);
     Log(info) << "Starting gateway back";
 
     try
     {
-        std::unique_ptr<IHandler> handler;
-        if (config.postgres)
-        {
-            handler = std::make_unique<UniversalHandler<JsonChecker, PostgresWriter>>(*config.postgres);
-        }
-
-        HttpServer server{config.http, *handler};
-        server.start();
-
-        waitSignal();
-
-        server.stop();
+        common::waitSignal();
     }
     catch (const std::exception& e)
     {

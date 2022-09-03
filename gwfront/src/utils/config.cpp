@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <limits>
-#include <set>
 #include <stdexcept>
 
 namespace

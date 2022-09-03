@@ -2,10 +2,12 @@ SET (TARGET_NAME gwback)
 
 
 SET (HEADERS
+    "src/utils/config.hpp"
 )
 
 SET (SOURCES
     "src/main.cpp"
+    "src/utils/config.cpp"
 )
 
 ADD_EXECUTABLE (${TARGET_NAME}
@@ -22,6 +24,7 @@ TARGET_LINK_LIBRARIES (${TARGET_NAME}
     ${Boost_LOG_SETUP_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${PQXX_LIBRARY}
+    common
     tomlplusplus
 )
 
