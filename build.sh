@@ -30,5 +30,6 @@ mkdir -p "${CMAKE_BUILD_DIR}" && \
 cd "${CMAKE_BUILD_DIR}" && \
 cmake ../../ -DCMAKE_BUILD_TYPE=${BUILD_TYPE} && \
 make -j$(nproc)
+make install
 
 cd "${CURRENT_DIR}"

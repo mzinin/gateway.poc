@@ -1,0 +1,5 @@
+CREATE TABLE "messages" (
+    id BIGSERIAL PRIMARY KEY,
+    ts TIMESTAMP NOT NULL DEFAULT NOW(),
+    data BYTEA NOT NULL
+);

@@ -20,44 +20,5 @@ ADD_COMPILE_DEFINITIONS ("BOOST_BEAST_USE_STD_STRING_VIEW")
 FIND_PACKAGE (PQXX REQUIRED)
 
 
-SET (HEADERS
-    "src/handler/interface.hpp"
-    "src/handler/json_checker.hpp"
-    "src/handler/postgres_writer.hpp"
-    "src/handler/universal_handler.hpp"
-    "src/http/server.hpp"
-    "src/http/session.hpp"
-    "src/utils/config.hpp"
-    "src/utils/log.hpp"
-)
-
-SET (SOURCES
-    "src/main.cpp"
-    "src/handler/json_checker.cpp"
-    "src/handler/postgres_writer.cpp"
-    "src/http/server.cpp"
-    "src/http/session.cpp"
-    "src/utils/config.cpp"
-    "src/utils/log.cpp"
-)
-
-ADD_EXECUTABLE (${PROJECT_NAME}
-    ${SOURCES}
-)
-
-TARGET_INCLUDE_DIRECTORIES (${PROJECT_NAME}
-    PUBLIC "src/"
-    ${PQXX_INCLUDE_DIR}
-)
-
-TARGET_LINK_LIBRARIES (${PROJECT_NAME}
-    ${Boost_LOG_LIBRARY}
-    ${Boost_LOG_SETUP_LIBRARY}
-    ${Boost_PROGRAM_OPTIONS_LIBRARY}
-    ${PQXX_LIBRARY}
-    nlohmann_json
-    tomlplusplus
-)
-
-
 ADD_SUBDIRECTORY (3rdparty)
+ADD_SUBDIRECTORY (gwfront)
