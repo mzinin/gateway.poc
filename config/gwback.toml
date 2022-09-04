@@ -7,3 +7,10 @@ port = 5432
 database = "test"
 user = "user"
 password = "123"
+
+[consumer]
+chunk_size = 10000
+output_folder = "/home/michel/Tmp"
+
+[producer]
+chunk_size = 1000

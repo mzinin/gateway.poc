@@ -17,7 +17,7 @@ HttpSession::HttpSession(boost::asio::ip::tcp::socket&& socket, uint16_t timeout
     , handler_(handler)
 {
     const auto endpoint = stream_.socket().remote_endpoint();
-    Log(info) << "Incoming connection from " << endpoint.address().to_string() << ":" << endpoint.port();
+    Log(debug) << "Incoming connection from " << endpoint.address().to_string() << ":" << endpoint.port();
 }
 
 HttpSession::~HttpSession()

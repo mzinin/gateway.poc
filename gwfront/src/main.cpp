@@ -73,10 +73,13 @@ int main(int argc, char* argv[])
 
         HttpServer server{config.http, *handler};
         server.start();
+        Log(info) << "Gateway front started";
 
         common::waitSignal();
 
+        Log(info) << "Stopping gateway front";
         server.stop();
+        Log(info) << "Gateway front stopped";
     }
     catch (const std::exception& e)
     {

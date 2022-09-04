@@ -3,8 +3,9 @@
 
 #include <filesystem>
 #include <fstream>
-#include <functional>
+#include <iomanip>
 #include <limits>
+#include <sstream>
 #include <thread>
 
 
@@ -25,8 +26,11 @@ namespace
             maxId = std::max(minId, message.id);
         }
 
-        const auto fileName = std::to_string(minId) + "-" + std::to_string(maxId);
-        const auto fullPath = std::filesystem::path(folder) / fileName;
+        std::ostringstream fileName;
+        fileName << std::setw(12) << std::setfill('0') << minId;
+        fileName << '-';
+        fileName << std::setw(12) << std::setfill('0') << maxId;
+        const auto fullPath = std::filesystem::path(folder) / fileName.str();
 
         std::ofstream output{fullPath, std::ofstream::out | std::ofstream::binary | std::ofstream::trunc};
         if (!output.good())
@@ -40,6 +44,8 @@ namespace
             output.write(reinterpret_cast<const char*>(message.data.data()), message.data.size());
             output << "\n";
         }
+
+        Log(info) << messages.size() << " messages saved to '" << fullPath << "'";
     }
 }
 

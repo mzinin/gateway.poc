@@ -6,10 +6,14 @@
 
 #include <boost/program_options.hpp>
 
+#include <atomic>
+#include <chrono>
 #include <csignal>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 namespace
 {
@@ -48,6 +52,37 @@ namespace
 
         return true;
     }
+
+    constexpr std::chrono::duration PAUSE = std::chrono::seconds(1);
+    std::atomic_bool run = true;
+
+    void runLoop(IProducer& producer, MessageConsumer& consumer)
+    {
+        while (run)
+        {
+            try
+            {
+                auto messages = producer.getNext();
+                Log(trace) << "Get " << messages.size() << " messages from producer";
+
+                if (messages.empty())
+                {
+                    std::this_thread::sleep_for(PAUSE);
+                    continue;
+                }
+
+                if (consumer(messages))
+                {
+                    producer.markConsumed(messages);
+                }
+            }
+            catch (const std::exception& e)
+            {
+                Log(error) << "Erro while processing messages: " << e.what();
+                std::this_thread::sleep_for(PAUSE);
+            }
+        }
+    }
 }
 
 int main(int argc, char* argv[])
@@ -63,21 +98,18 @@ int main(int argc, char* argv[])
 
     try
     {
-        auto producer = PostgresProducer{*config.postgres, config.producer};
+        auto producer = std::make_unique<PostgresProducer>(*config.postgres, config.producer);
         auto consumer = MessageConsumer{config.consumer};
 
-        auto msgs = producer.getNext();
-        consumer(msgs);
-
-        Log(info) << "number of messages: " << msgs.size();
-        for (const auto& msg : msgs)
-        {
-            Log(info) << "id: " << msg.id << ", data: " << std::string_view{reinterpret_cast<const char*>(msg.data.data()), msg.data.size()};
-        }
-
-        producer.markConsumed(msgs);
+        auto thread = std::thread(runLoop, std::ref(*producer), std::ref(consumer));
+        Log(info) << "Gateway back started";
 
         common::waitSignal();
+
+        Log(info) << "Stopping gateway back";
+        run = false;
+        thread.join();
+        Log(info) << "Gateway back stopped";
     }
     catch (const std::exception& e)
     {
