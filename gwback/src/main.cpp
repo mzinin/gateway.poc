@@ -1,5 +1,6 @@
 #include <common/utils/log.hpp>
 #include <common/utils/wait_signal.hpp>
+#include <consumer/consumer.hpp>
 #include <producer/postgres_producer.hpp>
 #include <utils/config.hpp>
 
@@ -63,20 +64,17 @@ int main(int argc, char* argv[])
     try
     {
         auto producer = PostgresProducer{*config.postgres, config.producer};
-        auto msgs = producer.getNext();
-        Log(info) << "number of messages 1: " << msgs.size();
-        for (auto& msg : msgs)
-        {
-            Log(info) << "id: " << msg.id << ", data: " << std::string_view{reinterpret_cast<char*>(msg.data.data()), msg.data.size()};
-        }
-        producer.markConsumed(msgs);
+        auto consumer = MessageConsumer{config.consumer};
 
-        msgs = producer.getNext();
-        Log(info) << "number of messages 2: " << msgs.size();
-        for (auto& msg : msgs)
+        auto msgs = producer.getNext();
+        consumer(msgs);
+
+        Log(info) << "number of messages: " << msgs.size();
+        for (const auto& msg : msgs)
         {
-            Log(info) << "id: " << msg.id << ", data: " << std::string_view{reinterpret_cast<char*>(msg.data.data()), msg.data.size()};
+            Log(info) << "id: " << msg.id << ", data: " << std::string_view{reinterpret_cast<const char*>(msg.data.data()), msg.data.size()};
         }
+
         producer.markConsumed(msgs);
 
         common::waitSignal();

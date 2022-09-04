@@ -2,6 +2,7 @@ SET (TARGET_NAME gwback)
 
 
 SET (HEADERS
+    "src/consumer/consumer.hpp"
     "src/message/message.hpp"
     "src/producer/interface.hpp"
     "src/producer/postgres_producer.hpp"
@@ -10,6 +11,7 @@ SET (HEADERS
 
 SET (SOURCES
     "src/main.cpp"
+    "src/consumer/consumer.cpp"
     "src/producer/postgres_producer.cpp"
     "src/utils/config.cpp"
 )
