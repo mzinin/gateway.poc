@@ -8,18 +8,19 @@ namespace
     const std::string MESSAGES_TABLE = "messages";
 }
 
-PostgresProducer::PostgresProducer(const common::PostgresConfig& config)
-    : connectionString_(config.connectionString())
+PostgresProducer::PostgresProducer(const common::PostgresConfig& postgresConfig, const ProducerConfig& producerConfig)
+    : connectionString_(postgresConfig.connectionString())
+    , chunkSize_(producerConfig.chunkSize)
 {
 }
 
-Messages PostgresProducer::getNext(uint32_t limit)
+Messages PostgresProducer::getNext()
 {
     auto& connection = getConnection();
     auto work = pqxx::work{connection};
 
     const auto query = "SELECT id, data FROM " + MESSAGES_TABLE + " ORDER BY id ASC LIMIT ($1)";
-    const auto rows = work.exec_params(query, limit);
+    const auto rows = work.exec_params(query, chunkSize_);
 
     Messages result;
     for (const auto& row : rows)

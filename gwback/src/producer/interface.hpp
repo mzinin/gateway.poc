@@ -10,6 +10,6 @@ class IProducer
 public:
     virtual ~IProducer() = default;
 
-    virtual Messages getNext(uint32_t limit) = 0;
+    virtual Messages getNext() = 0;
     virtual void markConsumed(const Messages& messages) = 0;
 };

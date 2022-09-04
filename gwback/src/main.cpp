@@ -62,8 +62,8 @@ int main(int argc, char* argv[])
 
     try
     {
-        auto producer = PostgresProducer{*config.postgres};
-        auto msgs = producer.getNext(2);
+        auto producer = PostgresProducer{*config.postgres, config.producer};
+        auto msgs = producer.getNext();
         Log(info) << "number of messages 1: " << msgs.size();
         for (auto& msg : msgs)
         {
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
         }
         producer.markConsumed(msgs);
 
-        msgs = producer.getNext(2);
+        msgs = producer.getNext();
         Log(info) << "number of messages 2: " << msgs.size();
         for (auto& msg : msgs)
         {
