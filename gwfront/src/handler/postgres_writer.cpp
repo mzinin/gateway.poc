@@ -4,6 +4,11 @@
 #include <mutex>
 
 
+namespace
+{
+    const std::string MESSAGES_TABLE = "messages";
+}
+
 PostgresWriter::PostgresWriter(const common::PostgresConfig& config)
     : connectionString_(config.connectionString())
 {
@@ -16,9 +21,10 @@ PostgresWriter::Result PostgresWriter::write(const std::string& data)
         auto& connection = findConnection();
         auto work = pqxx::work{connection};
 
-        work.exec_params("INSERT INTO messages (data) VALUES ($1)",
-                         pqxx::binarystring(data.data(), data.size()));
+        const auto query = "INSERT INTO " + MESSAGES_TABLE + " (data) VALUES ($1)";
+        work.exec_params(query, pqxx::binarystring(data.data(), data.size()));
         work.commit();
+
         return {Error::OK, ""};
     }
     catch (const pqxx::broken_connection& e)

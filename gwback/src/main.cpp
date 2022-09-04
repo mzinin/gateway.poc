@@ -63,12 +63,21 @@ int main(int argc, char* argv[])
     try
     {
         auto producer = PostgresProducer{*config.postgres};
-        auto msgs = producer.getNext(10);
-        Log(info) << "number of messages: " << msgs.size();
+        auto msgs = producer.getNext(2);
+        Log(info) << "number of messages 1: " << msgs.size();
         for (auto& msg : msgs)
         {
             Log(info) << "id: " << msg.id << ", data: " << std::string_view{reinterpret_cast<char*>(msg.data.data()), msg.data.size()};
         }
+        producer.markConsumed(msgs);
+
+        msgs = producer.getNext(2);
+        Log(info) << "number of messages 2: " << msgs.size();
+        for (auto& msg : msgs)
+        {
+            Log(info) << "id: " << msg.id << ", data: " << std::string_view{reinterpret_cast<char*>(msg.data.data()), msg.data.size()};
+        }
+        producer.markConsumed(msgs);
 
         common::waitSignal();
     }
