@@ -3,12 +3,18 @@ severity = "info"
 
 [http]
 port = 8080
-threads = 3
+threads = 1
 request_timeout = 3
 
-[postgres]
+#[postgres]
+#host = "127.0.0.1"
+#port = 5432
+#database = "test"
+#user = "user"
+#password = "123"
+
+[redis]
 host = "127.0.0.1"
-port = 5432
-database = "test"
+port = 6379
 user = "user"
 password = "123"

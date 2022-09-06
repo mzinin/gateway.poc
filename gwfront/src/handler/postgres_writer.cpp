@@ -9,7 +9,7 @@ namespace
     const std::string MESSAGES_TABLE = "messages";
 }
 
-PostgresWriter::PostgresWriter(const common::PostgresConfig& config)
+PostgresWriter::PostgresWriter(const ConfigType& config)
     : connectionString_(config.connectionString())
 {
 }
@@ -51,7 +51,7 @@ pqxx::connection& PostgresWriter::findConnection()
         }
     }
 
-    // create a new conenction
+    // create a new connection
     {
         std::unique_lock lock(mutex_);
         connections_.push_back({

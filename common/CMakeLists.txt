@@ -4,12 +4,14 @@ SET (TARGET_NAME common)
 SET (HEADERS
     "utils/config.hpp"
     "utils/log.hpp"
+    "utils/resolve_host.hpp"
     "utils/wait_signal.hpp"
 )
 
 SET (SOURCES
     "utils/config.cpp"
     "utils/log.cpp"
+    "utils/resolve_host.cpp"
     "utils/wait_signal.cpp"
 )
 

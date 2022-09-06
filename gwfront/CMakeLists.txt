@@ -5,6 +5,7 @@ SET (HEADERS
     "src/handler/interface.hpp"
     "src/handler/json_checker.hpp"
     "src/handler/postgres_writer.hpp"
+    "src/handler/redis_writer.hpp"
     "src/handler/universal_handler.hpp"
     "src/http/server.hpp"
     "src/http/session.hpp"
@@ -15,6 +16,7 @@ SET (SOURCES
     "src/main.cpp"
     "src/handler/json_checker.cpp"
     "src/handler/postgres_writer.cpp"
+    "src/handler/redis_writer.cpp"
     "src/http/server.cpp"
     "src/http/session.cpp"
     "src/utils/config.cpp"
@@ -32,6 +34,7 @@ TARGET_INCLUDE_DIRECTORIES (${TARGET_NAME}
 TARGET_LINK_LIBRARIES (${TARGET_NAME}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${PQXX_LIBRARY}
+    ${HIREDIS_LIBRARY}
     common
     nlohmann_json
     tomlplusplus

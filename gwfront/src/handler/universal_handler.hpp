@@ -1,6 +1,8 @@
 #pragma once
 
+#include <common/utils/log.hpp>
 #include <handler/interface.hpp>
+
 
 template <class Checker, class Writer>
 class UniversalHandler final : public IHandler
@@ -16,6 +18,7 @@ public:
         auto checkResult = Checker::check(data);
         if (!checkResult.ok)
         {
+            Log(error) << "UniversalHandler: bad data, " << checkResult.message;
             return {Error::BAD_DATA, std::move(checkResult.message)};
         }
 
@@ -23,9 +26,11 @@ public:
         switch (writeResult.error)
         {
             case Writer::Error::GENERIC:
+                Log(error) << "UniversalHandler: generic error, " << writeResult.message;
                 return {Error::GENERIC, std::move(writeResult.message)};
 
             case Writer::Error::STORAGE_UNAVAILABLE:
+            Log(error) << "UniversalHandler: storage unavailable, " << writeResult.message;
                 return {Error::STORAGE_UNAVAILABLE, std::move(writeResult.message)};
 
             default:

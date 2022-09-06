@@ -100,3 +100,46 @@ common::PostgresConfig common::parsePostgresConfig(const toml::node_view<const t
 
     return result;
 }
+
+common::RedisConfig common::parseRedisConfig(const toml::node_view<const toml::node>& node)
+{
+    RedisConfig result;
+
+    // parse and check host value
+    const auto host = node[HOST_PARAMETER].as_string();
+    if (!host || host->get().empty())
+    {
+        throw std::invalid_argument("Redis config has no proper host parameter");
+    }
+    result.host = host->get();
+
+    // parse and check port value
+    const auto port = node[PORT_PARAMETER].as_integer();
+    if (port)
+    {
+        const auto portValue = port->get();
+        if (portValue < MIN_PORT || MAX_PORT < portValue)
+        {
+            throw std::invalid_argument("Redis config has wrong port value: " + std::to_string(portValue));
+        }
+        result.port = static_cast<decltype(PostgresConfig::port)>(portValue);
+    }
+
+    // parse and check user value
+    const auto user = node[USER_PARAMETER].as_string();
+    if (!user || user->get().empty())
+    {
+        throw std::invalid_argument("Redis config has no proper user parameter");
+    }
+    result.user = user->get();
+
+    // parse and check password value
+    const auto password = node[PASSWORD_PARAMETER].as_string();
+    if (!password)
+    {
+        throw std::invalid_argument("Redis config has no proper password parameter");
+    }
+    result.password = password->get();
+
+    return result;
+}

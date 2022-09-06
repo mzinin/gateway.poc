@@ -11,6 +11,7 @@ namespace
     constexpr std::string_view HTTP_CONFIG_TABLE = "http";
     constexpr std::string_view LOG_CONFIG_TABLE = "log";
     constexpr std::string_view POSTGRES_CONFIG_TABLE = "postgres";
+    constexpr std::string_view REDIS_CONFIG_TABLE = "redis";
 
     constexpr std::string_view PORT_PARAMETER = "port";
     constexpr std::string_view REQUEST_TIMEOUT_PARAMETER = "request_timeout";
@@ -89,8 +90,13 @@ namespace
             config.postgres = common::parsePostgresConfig(postgresConfigNode);
         }
 
-        // TODO: either postgres or redis config must be present
-        if (!config.postgres)
+        const auto& redisConfigNode = table[REDIS_CONFIG_TABLE];
+        if (redisConfigNode)
+        {
+            config.redis = common::parseRedisConfig(redisConfigNode);
+        }
+
+        if (!config.postgres && !config.redis)
         {
             throw std::invalid_argument("Config file has no storage config table");
         }

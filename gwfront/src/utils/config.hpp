@@ -19,6 +19,7 @@ struct Config final
     common::LogConfig log;
     HttpServerConfig http;
     std::optional<common::PostgresConfig> postgres;
+    std::optional<common::RedisConfig> redis;
 };
 
 bool parseConfig(std::string_view filePath, Config& config);

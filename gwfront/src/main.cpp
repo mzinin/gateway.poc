@@ -3,6 +3,7 @@
 #include <handler/interface.hpp>
 #include <handler/json_checker.hpp>
 #include <handler/postgres_writer.hpp>
+#include <handler/redis_writer.hpp>
 #include <handler/universal_handler.hpp>
 #include <http/server.hpp>
 #include <utils/config.hpp>
@@ -69,6 +70,10 @@ int main(int argc, char* argv[])
         if (config.postgres)
         {
             handler = std::make_unique<UniversalHandler<JsonChecker, PostgresWriter>>(*config.postgres);
+        }
+        else
+        {
+            handler = std::make_unique<UniversalHandler<JsonChecker, RedisWriter>>(*config.redis);
         }
 
         HttpServer server{config.http, *handler};

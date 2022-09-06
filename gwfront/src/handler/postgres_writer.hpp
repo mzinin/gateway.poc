@@ -30,7 +30,7 @@ public:
     };
 
 public:
-    PostgresWriter(const common::PostgresConfig& config);
+    PostgresWriter(const ConfigType& config);
 
     Result write(const std::string& data);
 
