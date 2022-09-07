@@ -50,7 +50,7 @@ void HttpSession::read()
 
 void HttpSession::onRead(boost::beast::error_code ec, size_t /*bytesRead*/)
 {
-    if (ec == boost::beast::http::error::end_of_stream)
+    if (ec == boost::beast::http::error::end_of_stream || ec == boost::asio::error::connection_reset)
     {
         close();
         return;
@@ -59,6 +59,7 @@ void HttpSession::onRead(boost::beast::error_code ec, size_t /*bytesRead*/)
     if (ec)
     {
         Log(error) << "Failed to read request: " << ec.message();
+        close();
         return;
     }
 
@@ -119,6 +120,7 @@ void HttpSession::onWrite(boost::beast::error_code ec, size_t /*bytesWritten*/)
     if (ec)
     {
         Log(error) << "Failed to write response: " << ec.message();
+        close();
         return;
     }
 
@@ -126,8 +128,10 @@ void HttpSession::onWrite(boost::beast::error_code ec, size_t /*bytesWritten*/)
     {
         read();
     }
-
-    close();
+    else
+    {
+        close();
+    }
 }
 
 void HttpSession::close()
