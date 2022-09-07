@@ -1,3 +1,4 @@
+#include <common/utils/log.hpp>
 #include <common/utils/resolve_host.hpp>
 #include <handler/redis_writer.hpp>
 
@@ -136,11 +137,13 @@ RedisWriter::CheckedConnection RedisWriter::createConnection()
         redisFree(connection);
         return result;
     }
+    Log(debug) << "Connection to Redis established";
 
     auto result = authenticate(connection);
     if (!result.connection)
     {
         redisFree(connection);
+        Log(error) << "Failed to authenticate Redis connection";
     }
     return result;
 }
