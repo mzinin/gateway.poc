@@ -7,8 +7,8 @@
 
 HttpServer::HttpServer(const HttpServerConfig& config, IHandler& handler)
     : config_{config}
-    , ioContext_{config_.threads}
-    , acceptor_{boost::asio::make_strand(ioContext_)}
+    , ioContext_{config_.threads == 1 ? BOOST_ASIO_CONCURRENCY_HINT_UNSAFE : BOOST_ASIO_CONCURRENCY_HINT_SAFE}
+    , acceptor_{ioContext_}
     , handler_(handler)
 {
 }
@@ -53,7 +53,6 @@ void HttpServer::listen()
 void HttpServer::accept()
 {
     acceptor_.async_accept(
-        boost::asio::make_strand(ioContext_),
         [this](auto ec, auto socket){ onAccept(ec, std::move(socket)); }
     );
 }
