@@ -45,8 +45,9 @@ RedisWriter::Result RedisWriter::write(const std::string& data)
                                                         data.data(), data.size()));
 
     // reconnect and try again if needed
-    if (checkedConnection.connection->err == REDIS_ERR_EOF)
+    if (checkedConnection.connection->err == REDIS_ERR_EOF || checkedConnection.connection->err == REDIS_ERR_IO)
     {
+        freeReplyObject(reply);
         checkedConnection = reconnect(checkedConnection.connection);
         if (!checkedConnection.connection)
         {
@@ -65,6 +66,7 @@ RedisWriter::Result RedisWriter::write(const std::string& data)
     switch (checkedConnection.connection->err)
     {
         case REDIS_ERR_EOF:
+        case REDIS_ERR_IO:
             result.error = Error::STORAGE_UNAVAILABLE;
             result.message = checkedConnection.connection->errstr;
             break;
@@ -128,7 +130,7 @@ RedisWriter::CheckedConnection RedisWriter::createConnection()
 
     if (!connection)
     {
-        return {nullptr, "Failed to connect to redis"};
+        return {nullptr, "Failed to connect to Redis"};
     }
 
     if (connection->err != REDIS_OK)
@@ -150,10 +152,12 @@ RedisWriter::CheckedConnection RedisWriter::createConnection()
 
 RedisWriter::CheckedConnection RedisWriter::reconnect(redisContext* connection)
 {
-    if (redisReconnect(connection) != REDIS_OK )
+    if (redisReconnect(connection) != REDIS_OK)
     {
-        return {nullptr, "Failed to reconnect to redis"};
+        return {nullptr, "Failed to reconnect to Redis"};
     }
+    Log(debug) << "Connection to Redis reestablished";
+
     return authenticate(connection);
 }
 
@@ -179,5 +183,7 @@ RedisWriter::CheckedConnection RedisWriter::authenticate(redisContext* connectio
     }
 
     freeReplyObject(reply);
+
+    Log(debug) << "Connection to Redis authenticated";
     return {connection, std::string{}};
 }

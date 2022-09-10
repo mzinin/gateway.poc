@@ -129,7 +129,7 @@ Messages RedisProducer::getNext()
                             chunkSize_);
 
     // reconnect and try again if needed
-    if (connection->err == REDIS_ERR_EOF)
+    if (connection->err == REDIS_ERR_EOF || connection->err == REDIS_ERR_IO)
     {
         reconnect();
         reply = runCommand(connection,
