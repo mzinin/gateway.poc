@@ -22,6 +22,7 @@ struct Config final
 {
     common::LogConfig log;
     std::optional<common::PostgresConfig> postgres;
+    std::optional<common::RedisConfig> redis;
     ConsumerConfig consumer;
     ProducerConfig producer;
 };

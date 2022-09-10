@@ -2,6 +2,7 @@
 #include <common/utils/wait_signal.hpp>
 #include <consumer/consumer.hpp>
 #include <producer/postgres_producer.hpp>
+#include <producer/redis_producer.hpp>
 #include <utils/config.hpp>
 
 #include <boost/program_options.hpp>
@@ -78,7 +79,7 @@ namespace
             }
             catch (const std::exception& e)
             {
-                Log(error) << "Erro while processing messages: " << e.what();
+                Log(error) << "Error while processing messages: " << e.what();
                 std::this_thread::sleep_for(PAUSE);
             }
         }
@@ -98,7 +99,15 @@ int main(int argc, char* argv[])
 
     try
     {
-        auto producer = std::make_unique<PostgresProducer>(*config.postgres, config.producer);
+        std::unique_ptr<IProducer> producer;
+        if (config.postgres)
+        {
+            producer = std::make_unique<PostgresProducer>(*config.postgres, config.producer);
+        }
+        else
+        {
+            producer = std::make_unique<RedisProducer>(*config.redis, config.producer);
+        }
         auto consumer = MessageConsumer{config.consumer};
 
         auto thread = std::thread(runLoop, std::ref(*producer), std::ref(consumer));

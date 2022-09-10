@@ -6,6 +6,7 @@ SET (HEADERS
     "src/message/message.hpp"
     "src/producer/interface.hpp"
     "src/producer/postgres_producer.hpp"
+    "src/producer/redis_producer.hpp"
     "src/utils/config.hpp"
 )
 
@@ -13,6 +14,7 @@ SET (SOURCES
     "src/main.cpp"
     "src/consumer/consumer.cpp"
     "src/producer/postgres_producer.cpp"
+    "src/producer/redis_producer.cpp"
     "src/utils/config.cpp"
 )
 
@@ -30,6 +32,7 @@ TARGET_LINK_LIBRARIES (${TARGET_NAME}
     ${Boost_LOG_SETUP_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${PQXX_LIBRARY}
+    ${HIREDIS_LIBRARY}
     common
     tomlplusplus
 )

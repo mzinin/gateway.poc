@@ -11,6 +11,7 @@ namespace
     constexpr std::string_view LOG_CONFIG_TABLE = "log";
     constexpr std::string_view POSTGRES_CONFIG_TABLE = "postgres";
     constexpr std::string_view PRODUCER_CONFIG_TABLE = "producer";
+    constexpr std::string_view REDIS_CONFIG_TABLE = "redis";
 
     constexpr std::string_view CHUNK_SIZE_PARAMETER = "chunk_size";
     constexpr std::string_view OUTPUT_FOLDER_PARAMETER = "output_folder";
@@ -78,8 +79,13 @@ namespace
             config.postgres = common::parsePostgresConfig(postgresConfigNode);
         }
 
-        // TODO: either postgres or redis config must be present
-        if (!config.postgres)
+        const auto& redisConfigNode = table[REDIS_CONFIG_TABLE];
+        if (redisConfigNode)
+        {
+            config.redis = common::parseRedisConfig(redisConfigNode);
+        }
+
+        if (!config.postgres && !config.redis)
         {
             throw std::invalid_argument("Config file has no storage config table");
         }
