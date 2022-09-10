@@ -1,6 +1,6 @@
+#include <common/utils/log.hpp>
 #include <producer/postgres_producer.hpp>
 
-#include <iterator>
 #include <sstream>
 
 namespace
@@ -57,6 +57,7 @@ pqxx::connection& PostgresProducer::getConnection()
     if (!connection_)
     {
         connection_ = std::make_unique<pqxx::connection>(connectionString_);
+        Log(debug) << "Connection to Postgres established";
     }
     return *connection_;
 }

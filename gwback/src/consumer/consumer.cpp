@@ -27,9 +27,9 @@ namespace
         }
 
         std::ostringstream fileName;
-        fileName << std::setw(12) << std::setfill('0') << minId;
+        fileName << std::setw(19) << std::setfill('0') << minId;
         fileName << '-';
-        fileName << std::setw(12) << std::setfill('0') << maxId;
+        fileName << std::setw(19) << std::setfill('0') << maxId;
         const auto fullPath = std::filesystem::path(folder) / fileName.str();
 
         std::ofstream output{fullPath, std::ofstream::out | std::ofstream::binary | std::ofstream::trunc};
