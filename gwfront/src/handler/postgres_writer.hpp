@@ -36,7 +36,6 @@ public:
 
 private:
     pqxx::connection& findConnection();
-    void reconnect();
 
 private:
     const std::string connectionString_;

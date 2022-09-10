@@ -8,6 +8,7 @@
 namespace
 {
     const std::string MESSAGES_TABLE = "messages";
+    const int RECONNECT_RETRIES = 2;
 }
 
 PostgresWriter::PostgresWriter(const ConfigType& config)
@@ -17,31 +18,28 @@ PostgresWriter::PostgresWriter(const ConfigType& config)
 
 PostgresWriter::Result PostgresWriter::write(const std::string& data)
 {
-    bool doReconnect = true;
+    int retriesLeft = RECONNECT_RETRIES;
     while (true)
     {
         try
         {
             auto& connection = findConnection();
-            auto executor = pqxx::nontransaction{connection};
+            auto work = pqxx::work{connection};
 
             const auto query = "INSERT INTO " + MESSAGES_TABLE + " (data) VALUES ($1)";
-            executor.exec_params(query, pqxx::binarystring(data.data(), data.size()));
-            executor.commit();
+            work.exec_params(query, pqxx::binarystring(data.data(), data.size()));
+            work.commit();
 
             return {Error::OK, ""};
         }
         catch (const pqxx::broken_connection& e)
         {
-            if (doReconnect)
+            if (retriesLeft != 0)
             {
-                reconnect();
-                doReconnect = false;
+                --retriesLeft;
+                continue;
             }
-            else
-            {
-                return {Error::STORAGE_UNAVAILABLE, e.what()};
-            }
+            return {Error::STORAGE_UNAVAILABLE, e.what()};
         }
         catch (const std::exception& e)
         {
@@ -73,20 +71,5 @@ pqxx::connection& PostgresWriter::findConnection()
         });
         Log(debug) << "Connection to Postgres established";
         return *connections_.back().connection;
-    }
-}
-
-void PostgresWriter::reconnect()
-{
-    std::unique_lock lock(mutex_);
-
-    auto it = std::find_if(connections_.begin(),
-                           connections_.end(),
-                           [threadId = std::this_thread::get_id()](const auto& ec){ return ec.threadId == threadId; });
-
-    if (it != connections_.end())
-    {
-        it->connection = std::make_unique<pqxx::connection>(connectionString_);
-        Log(debug) << "Connection to Postgres reestablished";
     }
 }
