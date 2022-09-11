@@ -34,7 +34,6 @@ TARGET_LINK_LIBRARIES (${TARGET_NAME}
     ${PQXX_LIBRARY}
     ${HIREDIS_LIBRARY}
     common
-    tomlplusplus
 )
 
 

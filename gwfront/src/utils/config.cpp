@@ -1,6 +1,6 @@
 #include <utils/config.hpp>
 
-#include <tomlplusplus/toml.hpp>
+#include <toml++/toml.h>
 
 #include <iostream>
 #include <limits>

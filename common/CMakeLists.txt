@@ -25,7 +25,7 @@ ADD_LIBRARY (${TARGET_NAME} STATIC
 TARGET_LINK_LIBRARIES (${TARGET_NAME}
     PUBLIC ${Boost_LOG_LIBRARY}
     PUBLIC ${Boost_LOG_SETUP_LIBRARY}
-    PUBLIC tomlplusplus
+    PUBLIC tomlplusplus_tomlplusplus
 )
 
 

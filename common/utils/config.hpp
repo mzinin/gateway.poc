@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tomlplusplus/toml.hpp>
+#include <toml++/toml.h>
 
 #include <cstdint>
 #include <string>

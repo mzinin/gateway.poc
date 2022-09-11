@@ -37,7 +37,6 @@ TARGET_LINK_LIBRARIES (${TARGET_NAME}
     ${HIREDIS_LIBRARY}
     common
     nlohmann_json
-    tomlplusplus
 )
 
 
