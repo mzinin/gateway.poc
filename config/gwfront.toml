@@ -3,7 +3,7 @@ severity = "info"
 
 [http]
 port = 8080
-threads = 3
+threads = 16
 request_timeout = 3
 
 #[postgres]
