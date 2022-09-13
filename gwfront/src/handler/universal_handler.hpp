@@ -8,7 +8,7 @@ template <class Checker, class Writer>
 class UniversalHandler final : public IHandler
 {
 public:
-    UniversalHandler(const Writer::ConfigType& config)
+    UniversalHandler(const typename Writer::ConfigType& config)
         : writer_(config)
     {
     }

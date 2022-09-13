@@ -40,7 +40,7 @@ void HttpSession::run()
 void HttpSession::read()
 {
     request_ = {};
-    stream_.expires_after(std::chrono::seconds(30));
+    stream_.expires_after(std::chrono::seconds(timeout_));
 
     boost::beast::http::async_read(stream_,
                                    buffer_,
