@@ -13,6 +13,17 @@ namespace common
         std::string severity = "error";
     };
 
+    struct MessagesConfig final
+    {
+        enum class Type
+        {
+            JSON,
+            FLATBUFFERS
+        };
+
+        Type type;
+    };
+
     struct PostgresConfig final
     {
         std::string host;
@@ -33,6 +44,7 @@ namespace common
     };
 
     LogConfig parseLogConfig(const toml::node_view<const toml::node>& node);
+    MessagesConfig parseMessagesConfig(const toml::node_view<const toml::node>& node);
     PostgresConfig parsePostgresConfig(const toml::node_view<const toml::node>& node);
     RedisConfig parseRedisConfig(const toml::node_view<const toml::node>& node);
 

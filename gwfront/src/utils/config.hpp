@@ -17,6 +17,7 @@ struct HttpServerConfig final
 struct Config final
 {
     common::LogConfig log;
+    common::MessagesConfig messages;
     HttpServerConfig http;
     std::optional<common::PostgresConfig> postgres;
     std::optional<common::RedisConfig> redis;

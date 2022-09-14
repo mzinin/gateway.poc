@@ -10,6 +10,7 @@ namespace
 {
     constexpr std::string_view HTTP_CONFIG_TABLE = "http";
     constexpr std::string_view LOG_CONFIG_TABLE = "log";
+    constexpr std::string_view MESSAGES_CONFIG_TABLE = "messages";
     constexpr std::string_view POSTGRES_CONFIG_TABLE = "postgres";
     constexpr std::string_view REDIS_CONFIG_TABLE = "redis";
 
@@ -76,6 +77,13 @@ namespace
         {
             config.log = common::parseLogConfig(logConfigNode);
         }
+
+        const auto& messagesConfigNode = table[MESSAGES_CONFIG_TABLE];
+        if (!messagesConfigNode)
+        {
+            throw std::invalid_argument("Config file has no messages config table");
+        }
+        config.messages = common::parseMessagesConfig(messagesConfigNode);
 
         const auto& httpServerConfigNode = table[HTTP_CONFIG_TABLE];
         if (!httpServerConfigNode)

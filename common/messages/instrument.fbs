@@ -7,8 +7,6 @@ table Instrument {
     int3: int64;
     int4: int64;
     int5: int64;
-    int6: int64;
-    int7: int64;
 
     double0: float64;
     double1: float64;
@@ -16,8 +14,6 @@ table Instrument {
     double3: float64;
     double4: float64;
     double5: float64;
-    double6: float64;
-    double7: float64;
 
     str0: string;
     str1: string;

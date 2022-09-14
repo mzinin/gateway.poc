@@ -1,5 +1,6 @@
 #include <common/utils/log.hpp>
 #include <common/utils/wait_signal.hpp>
+#include <handler/flatbuffers_checker.hpp>
 #include <handler/interface.hpp>
 #include <handler/json_checker.hpp>
 #include <handler/postgres_writer.hpp>
@@ -51,6 +52,32 @@ namespace
 
         return true;
     }
+
+    std::unique_ptr<IHandler> makeHandler(const Config& config)
+    {
+        if (config.messages.type == common::MessagesConfig::Type::JSON)
+        {
+            if (config.postgres)
+            {
+                return std::make_unique<UniversalHandler<JsonChecker, PostgresWriter>>(*config.postgres);
+            }
+            else
+            {
+                return std::make_unique<UniversalHandler<JsonChecker, RedisWriter>>(*config.redis);
+            }
+        }
+        else
+        {
+            if (config.postgres)
+            {
+                return std::make_unique<UniversalHandler<FlatbuffersChecker, PostgresWriter>>(*config.postgres);
+            }
+            else
+            {
+                return std::make_unique<UniversalHandler<FlatbuffersChecker, RedisWriter>>(*config.redis);
+            }
+        }
+    }
 }
 
 int main(int argc, char* argv[])
@@ -66,15 +93,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<IHandler> handler;
-        if (config.postgres)
-        {
-            handler = std::make_unique<UniversalHandler<JsonChecker, PostgresWriter>>(*config.postgres);
-        }
-        else
-        {
-            handler = std::make_unique<UniversalHandler<JsonChecker, RedisWriter>>(*config.redis);
-        }
+        auto handler = makeHandler(config);
 
         HttpServer server{config.http, *handler};
         server.start();

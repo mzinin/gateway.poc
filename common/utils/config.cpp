@@ -13,9 +13,13 @@ namespace
     constexpr std::string_view PASSWORD_PARAMETER = "password";
     constexpr std::string_view PORT_PARAMETER = "port";
     constexpr std::string_view SEVERITY_PARAMETER = "severity";
+    constexpr std::string_view TYPE_PARAMETER = "type";
     constexpr std::string_view USER_PARAMETER = "user";
 
     const std::set<std::string> SEVERITIES = {"trace", "debug", "info", "warning", "error", "fatal"};
+
+    const std::string JSON_MESSAGE_TYPE = "json";
+    const std::string FLATBUFFERS_MESSAGE_TYPE = "flatbuffers";
 
     constexpr int64_t MIN_PORT = 1;
     constexpr int64_t MAX_PORT = 65535;
@@ -45,6 +49,33 @@ common::LogConfig common::parseLogConfig(const toml::node_view<const toml::node>
             throw std::invalid_argument("Log config has no proper severity parameter");
         }
         result.severity = severityValue;
+    }
+
+    return result;
+}
+
+common::MessagesConfig common::parseMessagesConfig(const toml::node_view<const toml::node>& node)
+{
+    MessagesConfig result;
+
+    const auto type = node[TYPE_PARAMETER].as_string();
+    if (!type || type->get().empty())
+    {
+        throw std::invalid_argument("Messages config has no proper type parameter");
+    }
+
+    const auto typeValue = type->get();
+    if (typeValue == JSON_MESSAGE_TYPE)
+    {
+        result.type = MessagesConfig::Type::JSON;
+    }
+    else if (typeValue == FLATBUFFERS_MESSAGE_TYPE)
+    {
+        result.type = MessagesConfig::Type::FLATBUFFERS;
+    }
+    else
+    {
+        throw std::invalid_argument("Messages config has wrong type value: " + typeValue);
     }
 
     return result;

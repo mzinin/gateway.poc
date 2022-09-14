@@ -6,15 +6,18 @@ port = 8080
 threads = 16
 request_timeout = 3
 
-#[postgres]
-#host = "127.0.0.1"
-#port = 5432
-#database = "test"
-#user = "user"
-#password = "123"
+[messages]
+type = "flatbuffers"
 
-[redis]
+[postgres]
 host = "127.0.0.1"
-port = 6379
+port = 5432
+database = "test"
 user = "user"
 password = "123"
+
+#[redis]
+#host = "127.0.0.1"
+#port = 6379
+#user = "user"
+#password = "123"

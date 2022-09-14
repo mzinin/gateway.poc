@@ -2,6 +2,7 @@ SET (TARGET_NAME gwfront)
 
 
 SET (HEADERS
+    "src/handler/flatbuffers_checker.hpp"
     "src/handler/interface.hpp"
     "src/handler/json_checker.hpp"
     "src/handler/postgres_writer.hpp"
@@ -14,6 +15,7 @@ SET (HEADERS
 
 SET (SOURCES
     "src/main.cpp"
+    "src/handler/flatbuffers_checker.cpp"
     "src/handler/json_checker.cpp"
     "src/handler/postgres_writer.cpp"
     "src/handler/redis_writer.cpp"
