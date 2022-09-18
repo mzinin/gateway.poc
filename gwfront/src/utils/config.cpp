@@ -21,7 +21,7 @@ namespace
     constexpr int64_t MIN_PORT = 1;
     constexpr int64_t MAX_PORT = 65535;
     constexpr int64_t MIN_THREADS = 1;
-    constexpr int64_t MAX_THREADS = 256;
+    constexpr int64_t MAX_THREADS = 16384;
     constexpr int64_t MIN_TIMEOUT = 1;
     constexpr int64_t MAX_TIMEOUT = 60;
 
