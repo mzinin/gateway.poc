@@ -23,7 +23,7 @@ namespace
     constexpr int64_t MIN_THREADS = 1;
     constexpr int64_t MAX_THREADS = 16384;
     constexpr int64_t MIN_TIMEOUT = 1;
-    constexpr int64_t MAX_TIMEOUT = 60;
+    constexpr int64_t MAX_TIMEOUT = 600;
 
     HttpServerConfig parseHttpServerConfig(const toml::node_view<const toml::node>& node)
     {
