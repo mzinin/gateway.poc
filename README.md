@@ -33,6 +33,23 @@ To delete all build artifacts, including executable binaries:
 ./clean.sh
 ```
 
+## Linux tuning
+
+If expected number of open connection exceeds open files limit, this limit needs to be updated. On Ubuntu 22.04 this can be done in the following steps:
+
+- add 2 lines to the file `/etc/security/limits.conf`:
+    ```
+    * soft nofile 16384
+    * hard nofile 524288
+    ```
+- add one line to the file `/etc/pam.d/common-session`:
+    ```
+    session requried pam_limits.so
+    ```
+- and the same line to the file `/etc/pam.d/common-session-noninteractive`:
+    ```
+    session requried pam_limits.so
+    ```
 
 ## Supported storages
 
@@ -73,7 +90,7 @@ The tested version is 14.5. Steps to install and set up:
     ```
 - increase maximum number of simultaneous connections in `/etc/postgresql/14/main/postgresql.conf`:
     ```
-    max_connections = 512
+    max_connections = 8192
     ```
 
 ### Redis
