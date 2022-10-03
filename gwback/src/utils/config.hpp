@@ -16,6 +16,7 @@ struct ConsumerConfig final
 struct ProducerConfig final
 {
     uint32_t chunkSize = 1000;
+    uint32_t messageLimit = 1000000;
 };
 
 struct Config final

@@ -12,4 +12,5 @@ public:
 
     virtual Messages getNext() = 0;
     virtual void markConsumed(const Messages& messages) = 0;
+    virtual bool done() const = 0;
 };

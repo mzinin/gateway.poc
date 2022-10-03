@@ -109,6 +109,7 @@ namespace
 RedisProducer::RedisProducer(const common::RedisConfig& redisConfig, const ProducerConfig& producerConfig)
     : config_(redisConfig)
     , chunkSize_(producerConfig.chunkSize)
+    , messageLimit_(producerConfig.messageLimit)
     , connection_(nullptr, nullptr)
 {
     config_.host = common::resolveHost(redisConfig.host);
@@ -155,7 +156,9 @@ Messages RedisProducer::getNext()
         throw std::runtime_error("Failed to read from Redis: no details known");
     }
 
-    return messagesFromReply(reply.get());
+    const auto result = messagesFromReply(reply.get());
+    messageCount_ += result.size();
+    return result;
 }
 
 void RedisProducer::markConsumed(const Messages& messages)
@@ -184,6 +187,11 @@ void RedisProducer::markConsumed(const Messages& messages)
     {
         throw std::runtime_error(std::string("Failed to read from Redis: ") + reply->str);
     }
+}
+
+bool RedisProducer::done() const
+{
+    return messageCount_ == messageLimit_;
 }
 
 redisContext* RedisProducer::getConnection()

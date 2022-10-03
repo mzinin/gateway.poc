@@ -1,6 +1,7 @@
 #include <common/utils/log.hpp>
 #include <consumer/consumer.hpp>
 
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -11,6 +12,8 @@
 
 namespace
 {
+    std::atomic_int flushingThreads = 0;
+
     void saveMessages(const Messages& messages, const std::string& folder)
     {
         if (messages.empty())
@@ -45,7 +48,8 @@ namespace
             output << "\n";
         }
 
-        Log(info) << messages.size() << " messages saved to '" << fullPath << "'";
+        Log(trace) << messages.size() << " messages saved to '" << fullPath << "'";
+        --flushingThreads;
     }
 }
 
@@ -74,7 +78,13 @@ bool MessageConsumer::operator()(Messages& messages)
     return true;
 }
 
+void MessageConsumer::wait() const
+{
+    while (flushingThreads != 0);
+}
+
 void MessageConsumer::flushBuffer()
 {
+    ++flushingThreads;
     std::thread(saveMessages, std::move(buffer_), outputFolder_).detach();
 }

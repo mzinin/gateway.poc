@@ -14,6 +14,7 @@ namespace
     constexpr std::string_view REDIS_CONFIG_TABLE = "redis";
 
     constexpr std::string_view CHUNK_SIZE_PARAMETER = "chunk_size";
+    constexpr std::string_view MESSAGE_LIMIT_PARAMETER = "message_limit";
     constexpr std::string_view OUTPUT_FOLDER_PARAMETER = "output_folder";
 
     constexpr int64_t MIN_CHUNK = 1;
@@ -60,6 +61,14 @@ namespace
                 throw std::invalid_argument("Consumer config has wrong chunk size value: " + std::to_string(chunkSizeValue));
             }
             result.chunkSize = static_cast<decltype(ProducerConfig::chunkSize)>(chunkSizeValue);
+        }
+
+        // parse message limit value
+        const auto messageLimit = node[MESSAGE_LIMIT_PARAMETER].as_integer();
+        if (messageLimit)
+        {
+            const auto messageLimitValue = messageLimit->get();
+            result.messageLimit = static_cast<decltype(ProducerConfig::chunkSize)>(messageLimitValue);
         }
 
         return result;

@@ -1,5 +1,4 @@
 #include <common/utils/log.hpp>
-#include <common/utils/wait_signal.hpp>
 #include <consumer/consumer.hpp>
 #include <producer/postgres_producer.hpp>
 #include <producer/redis_producer.hpp>
@@ -76,6 +75,11 @@ namespace
                 {
                     producer.markConsumed(messages);
                 }
+
+                if (producer.done())
+                {
+                    run = false;
+                }
             }
             catch (const std::exception& e)
             {
@@ -110,15 +114,14 @@ int main(int argc, char* argv[])
         }
         auto consumer = MessageConsumer{config.consumer};
 
-        auto thread = std::thread(runLoop, std::ref(*producer), std::ref(consumer));
-        Log(info) << "Gateway back started";
+        Log(info) << "Gateway back is waiting for " << config.producer.messageLimit << " message(s)";
+        const auto start = std::chrono::steady_clock::now();
 
-        common::waitSignal();
+        runLoop(*producer, consumer);
+        consumer.wait();
 
-        Log(info) << "Stopping gateway back";
-        run = false;
-        thread.join();
-        Log(info) << "Gateway back stopped";
+        const auto end = std::chrono::steady_clock::now();
+        Log(info) << "Done in " << (std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) << " ms";
     }
     catch (const std::exception& e)
     {

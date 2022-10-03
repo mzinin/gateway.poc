@@ -11,6 +11,7 @@ namespace
 PostgresProducer::PostgresProducer(const common::PostgresConfig& postgresConfig, const ProducerConfig& producerConfig)
     : connectionString_(postgresConfig.connectionString())
     , chunkSize_(producerConfig.chunkSize)
+    , messageLimit_(producerConfig.messageLimit)
 {
 }
 
@@ -32,6 +33,8 @@ Messages PostgresProducer::getNext()
             .data = {data.data(), data.data() + data.size()}
         });
     }
+
+    messageCount_ += result.size();
     return result;
 }
 
@@ -50,6 +53,11 @@ void PostgresProducer::markConsumed(const Messages& messages)
 
     work.exec(query.str());
     work.commit();
+}
+
+bool PostgresProducer::done() const
+{
+    return messageCount_ == messageLimit_;
 }
 
 pqxx::connection& PostgresProducer::getConnection()

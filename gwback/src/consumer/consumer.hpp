@@ -14,6 +14,7 @@ public:
     ~MessageConsumer();
 
     bool operator()(Messages& messages);
+    void wait() const;
 
 private:
     void flushBuffer();

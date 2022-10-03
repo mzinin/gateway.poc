@@ -16,6 +16,7 @@ public:
 
     Messages getNext() override;
     void markConsumed(const Messages& messages) override;
+    bool done() const override;
 
 private:
     using ConnectionPtr = std::unique_ptr<redisContext, void(*)(redisContext*)>;
@@ -35,5 +36,7 @@ private:
 private:
     common::RedisConfig config_;
     const uint32_t chunkSize_;
+    const uint32_t messageLimit_;
+    uint32_t messageCount_ = 0;
     ConnectionPtr connection_;
 };
